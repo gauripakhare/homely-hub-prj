@@ -16,7 +16,7 @@ export const getProperty = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: property,
+      data: property, // ✅ FIXED
     });
   } catch (error) {
     res.status(500).json({
@@ -46,17 +46,19 @@ export const createProperty = async (req, res) => {
 
     const uploadedImages = [];
 
-    for (const img of images) {
-      const upload = await imagekit.upload({
-        file: img.url,
-        fileName: `property_${Date.now()}.jpg`,
-        folder: "property_images",
-      });
+    if (images && images.length > 0) {
+      for (const img of images) {
+        const upload = await imagekit.upload({
+          file: img.url,
+          fileName: `property_${Date.now()}.jpg`,
+          folder: "property_images",
+        });
 
-      uploadedImages.push({
-        url: upload.url,
-        public_id: upload.fileId,
-      });
+        uploadedImages.push({
+          url: upload.url,
+          public_id: upload.fileId,
+        });
+      }
     }
 
     const property = await Property.create({
@@ -101,9 +103,9 @@ export const getProperties = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      no_of_responses: properties.length,
-      all_properties: totalProperties,
-      data: properties,
+      results: properties.length,
+      total: totalProperties,
+      data: properties, // ✅ frontend-safe
     });
   } catch (error) {
     console.error("Get properties error:", error);
@@ -121,6 +123,7 @@ export const getUsersProperties = async (req, res) => {
 
     res.status(200).json({
       status: "success",
+      results: properties.length,
       data: properties,
     });
   } catch (error) {
